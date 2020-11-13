@@ -1,0 +1,67 @@
+version: "3.7"
+services:
+    nginx:
+        image: nginx:1.17-alpine
+        container_name: test-nginx
+        restart: unless-stopped
+        ports:
+            - 80:80
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx:/etc/nginx/conf.d
+        networks:
+            - test01
+    app:
+        depends_on:
+          - mysql
+          - nginx
+        build:
+            context: ./docker/php-fpm
+            dockerfile: Dockerfile
+        image: test01
+        container_name: test-app
+        restart: unless-stopped
+        environment:
+            DB_HOST: ${DB_HOST}
+            DB_DATABASE: ${DB_DATABASE}
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - ./:/var/www
+        networks:
+            - test01
+    mysql:
+        image: mysql:5.7
+        container_name: test-db
+        restart: unless-stopped
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+            - mysqldata:/var/lib/mysql
+        networks:
+            - test01
+    phpmyadmin:
+        depends_on:
+            - mysql
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        networks:
+            - test01
+        restart: unless-stopped
+        ports:
+            - 9090:80
+        environment:
+            PMA_HOST: mysql
+networks:
+  test01:
+    driver: bridge
+volumes:
+  mysqldata:
