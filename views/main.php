@@ -7,6 +7,7 @@
         <?php endif; ?>
     </div>
     <hr>
+    <?php require_once 'messages.php'; ?>
     <h2 class="h3 text-center mt-5 mb-3">Задачи</h2>
 
     <a href="/create" class="btn btn-success">Создать задачу</a>
