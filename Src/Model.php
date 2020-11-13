@@ -11,7 +11,7 @@ abstract class Model
 {
     private const TABLE_NAME = '';
 
-    public const PER_PAGE = 2;
+    public const PER_PAGE = 3;
 
     public static function count(): int
     {
