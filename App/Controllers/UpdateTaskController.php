@@ -13,13 +13,17 @@ class UpdateTaskController extends AbstractController
 {
     public function __invoke()
     {
+        if (! $this->isUserAuthorized()) {
+            $this->redirect('/login');
+        }
+
         $task = Task::findById((int)$this->request->query()['id']);
 
         if (is_null($task)) {
             throw new Exception('задача не найдена.', 404);
         }
 
-        if ($this->request->isPost() && $this->isUserAuthorized()) {
+        if ($this->request->isPost()) {
             $taskData = $this->request->body();
 
             $validator = new Validator($taskData, []);
